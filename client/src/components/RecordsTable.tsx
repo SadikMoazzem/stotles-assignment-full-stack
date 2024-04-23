@@ -1,18 +1,17 @@
+import React from "react";
 import { Table } from "antd";
 import { ColumnType } from "antd/lib/table";
-import React from "react";
-import { ProcurementRecord } from "../Api";
+
 import ProcurementRecordPreviewModal from "./ProcurementRecordPreview";
+import { ProcurementRecord } from "../types";
 
 type Props = {
   records: ProcurementRecord[];
 };
-
-function RecordsTable(props: Props) {
-  const { records } = props;
-  const [previewedRecord, setPreviewedRecord] = React.useState<
-    ProcurementRecord | undefined
-  >();
+const RecordsTable: React.FC<Props> = ({
+    records,
+}) => {
+  const [previewedRecord, setPreviewedRecord] = React.useState<ProcurementRecord>();
 
   const columns = React.useMemo<ColumnType<ProcurementRecord>[]>(() => {
     return [

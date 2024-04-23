@@ -1,8 +1,10 @@
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "antd";
-import React from "react";
-import Api, { ProcurementRecord } from "../Api";
-import RecordSearchFilters, { SearchFilters } from "../components/RecordSearchFilters";
+
+import Api from "../Api";
+import RecordSearchFilters from "../components/RecordSearchFilters";
 import RecordsTable from "../components/RecordsTable";
+import { ProcurementRecord, SearchFilters } from "../types";
 
 /**
  * This component implements very basic pagination.
@@ -18,47 +20,46 @@ import RecordsTable from "../components/RecordsTable";
 
 const PAGE_SIZE = 10;
 
-function RecordSearchPage() {
-  const [page, setPage] = React.useState<number>(1);
-  const [searchFilters, setSearchFilters] = React.useState<SearchFilters>({
+const RecordSearchPage = () => {
+  const [page, setPage] = useState<number>(1);
+  const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     query: "",
     buyerId: undefined,
   });
+  const [records, setRecords] = useState<ProcurementRecord[] | undefined>();
+  const [reachedEndOfSearch, setReachedEndOfSearch] = useState(false);
 
-  const [records, setRecords] = React.useState<
-    ProcurementRecord[] | undefined
-  >();
+  useEffect(() => {
+    const fetchRecords = async () => {
+      try {
+        const api = new Api();
+        const response = await api.searchRecords({
+          textSearch: searchFilters.query,
+          buyerIdFilter: searchFilters.buyerId,
+          limit: PAGE_SIZE,
+          offset: PAGE_SIZE * (page - 1),
+        });
 
-  const [reachedEndOfSearch, setReachedEndOfSearch] = React.useState(false);
-
-  console.log('searchFilters', searchFilters);
-
-  React.useEffect(() => {
-    void (async () => {
-      const api = new Api();
-      const response = await api.searchRecords({
-        textSearch: searchFilters.query,
-        buyerIdFilter: searchFilters.buyerId,
-        limit: PAGE_SIZE,
-        offset: PAGE_SIZE * (page - 1),
-      });
-
-      if (page === 1) {
-        setRecords(response.records);
-      } else {
-        // append new results to the existing records
-        setRecords((oldRecords) => [...oldRecords, ...response.records]);
+        if (page === 1) {
+          setRecords(response.records);
+        } else {
+          setRecords((oldRecords) => [...oldRecords, ...response.records]);
+        }
+        setReachedEndOfSearch(response.endOfResults);
+      } catch (error) {
+        console.error("Failed to fetch records:", error);
       }
-      setReachedEndOfSearch(response.endOfResults);
-    })();
+    };
+
+    fetchRecords();
   }, [searchFilters, page]);
 
-  const handleChangeFilters = React.useCallback((newFilters: SearchFilters) => {
+  const handleChangeFilters = useCallback((newFilters: SearchFilters) => {
     setSearchFilters(newFilters);
-    setPage(1); // reset pagination state
+    setPage(1);
   }, []);
 
-  const handleLoadMore = React.useCallback(() => {
+  const handleLoadMore = useCallback(() => {
     setPage((page) => page + 1);
   }, []);
 

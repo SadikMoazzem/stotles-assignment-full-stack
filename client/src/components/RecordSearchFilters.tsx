@@ -1,21 +1,17 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { Row, Col, Input, Select } from "antd";
 
-import Api, { BuyerRecord } from "../Api";
-
-export type SearchFilters = {
-  query: string;
-  buyerId?: string;
-};
+import Api from "../Api";
+import { SearchFilters, BuyerRecord } from "../types";
 
 type Props = {
   filters: SearchFilters;
   onChange: (newFilters: SearchFilters) => void;
 };
-
-function RecordSearchFilters(props: Props) {
+const RecordSearchFilters: React.FC<Props> = ({
+    filters, onChange,
+}) => {
   const [availableBuyerRecords, setBuyerRecords] = useState<BuyerRecord[]>([]);
-  const { filters, onChange } = props;
 
   useEffect(() => {
     const fetchBuyerRecords = async () => {
@@ -25,7 +21,7 @@ function RecordSearchFilters(props: Props) {
         const response = await api.getBuyers();
         setBuyerRecords(response.buyers);
       } catch (err) {
-        // Add in error message to user
+        // TODO Add in error message to user
         console.error("Failed to fetch buyer records", err);
       }
     };
@@ -68,10 +64,13 @@ function RecordSearchFilters(props: Props) {
           style={{ width: '100%' }}
           placeholder="Choose a buyer to filter by..."
           onChange={handleFilterChange}
-          options={availableBuyerRecords.map((buyer) => ({
-            label: buyer.name,
-            value: buyer.id,
-          }))}
+          options={[
+            { label: "View all buyers", value: "" },
+            ...availableBuyerRecords.map((buyer) => ({
+              label: buyer.name,
+              value: buyer.id,
+            })),
+          ]}
         />
       </Col>
     </Row>

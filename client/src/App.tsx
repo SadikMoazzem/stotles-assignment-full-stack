@@ -3,10 +3,10 @@ import { Breadcrumb, Layout, Menu } from "antd";
 import { Content, Footer, Header } from "antd/lib/layout/layout";
 import RecordSearchPage from "./views/RecordSearchPage";
 import Sider from "antd/lib/layout/Sider";
+
 import "./App.css";
 
-function App() {
-  return (
+const App = () => (
     <Layout style={{ minHeight: "100vh" }} hasSider>
       <Sider>
         <Menu
@@ -35,7 +35,6 @@ function App() {
         </Footer>
       </Layout>
     </Layout>
-  );
-}
+);
 
 export default App;
