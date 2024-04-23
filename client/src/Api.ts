@@ -1,5 +1,15 @@
+export type BuyerRecord = {
+    id: string;
+    name: string;
+}
+
+export type BuyerRecordsResponse = {
+    buyers: BuyerRecord[];
+}
+
 export type SearchRecordsRequest = {
   textSearch?: string;
+  buyerIdFilter?: string;
   limit: number;
   offset: number;
 };
@@ -9,10 +19,12 @@ export type ProcurementRecord = {
   title: string;
   description: string;
   publishDate: string;
-  buyer: {
-    id: string;
-    name: string;
-  };
+  closeDate: string | null;
+  awardDate: string | null;
+  value: number;
+  currency: string | null;
+  stage: "TENDER" | "CONTRACT";
+  buyer: BuyerRecord;
 };
 
 export type SearchRecordsResponse = {
@@ -30,6 +42,15 @@ class Api {
         "content-type": "application/json",
       },
       body: JSON.stringify(request),
+    });
+    return await response.json();
+  }
+  async getBuyers(): Promise<BuyerRecordsResponse> {
+    const response = await fetch("/api/buyers", {
+      method: "GET",
+      headers: {
+        "content-type": "application/json",
+      },
     });
     return await response.json();
   }

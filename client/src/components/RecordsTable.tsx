@@ -1,7 +1,7 @@
 import { Table } from "antd";
 import { ColumnType } from "antd/lib/table";
 import React from "react";
-import { ProcurementRecord } from "./Api";
+import { ProcurementRecord } from "../Api";
 import ProcurementRecordPreviewModal from "./ProcurementRecordPreview";
 
 type Props = {
@@ -22,6 +22,21 @@ function RecordsTable(props: Props) {
           new Date(record.publishDate).toLocaleDateString(),
       },
       {
+        title: "Stage",
+        render: (record: ProcurementRecord) => {
+            switch (record.stage) {
+              case 'TENDER':
+                return record.closeDate && new Date(record.closeDate) <= new Date() 
+                  ? `Closed` 
+                  : `Open until ${record.closeDate}`;
+              case 'CONTRACT':
+                return `Awarded on ${record.awardDate}`;
+              default:
+                return null;
+            }
+        }
+      },
+      {
         title: "Title",
         render: (record: ProcurementRecord) => {
           const handleClick = (e: React.MouseEvent) => {
@@ -38,6 +53,13 @@ function RecordsTable(props: Props) {
       {
         title: "Buyer name",
         render: (record: ProcurementRecord) => record.buyer.name,
+      },
+      {
+        title: "Value",
+        render: (record: ProcurementRecord) => {
+            if (!record.value) return null;
+            return `${record.value.toLocaleString()} (${record.currency || ''})`; // , currency: record.currency
+          }
       },
     ];
   }, []);
